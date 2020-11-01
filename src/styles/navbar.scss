@@ -1,0 +1,38 @@
+$grey: rgb(56, 56, 56);
+$header-color: rgb(62, 134, 201);
+$greyOnHover: rgb(105, 105, 105);
+
+.left-bar {
+    width: 15%;
+
+    .header{
+        background-color: $header-color;
+        height: 80px;
+        width: 100%;
+        text-align: center;
+    }    
+
+    .container{
+        width: 100%;
+        height: 100%;
+        background-color: $grey;
+
+        nav {
+            display: flex;
+            flex-direction: column;
+        }
+
+        a{
+            height: 3em;
+            display: flex;
+            align-items: center;
+            padding-left: 1em;
+            color: white;
+            text-decoration: unset;
+        }
+
+        a:hover{
+            background-color: $greyOnHover;
+        }
+    }
+}

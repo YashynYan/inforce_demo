@@ -1,0 +1,49 @@
+$primary: rgb(29, 80, 219);
+$danger: rgb(255, 55, 55);
+
+.main_content{
+    width: 100%;
+    height: 100%;
+}
+
+.content_header{
+    height: 60px;
+    width: 80%;
+    margin: 20px 0 0 20px;
+}    
+
+.buttons_container{
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+}
+
+.btn{
+    height: 2.5em;
+    margin-right: 1em;
+    color: white;
+
+    &.primary{
+        background-color: $primary;
+    }
+
+    &.danger{
+        background-color: $danger;
+    }
+}
+
+table{
+    width: 100%;
+
+    tr{
+        cursor: pointer;
+    }
+
+    .selected{
+        background-color: rgba(29, 80, 219, 0.3);
+    }
+
+    th{
+        text-align: left;
+    }
+}

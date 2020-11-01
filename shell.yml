@@ -1,0 +1,17 @@
+version: '2'
+networks:
+  beholderuniversitynet:
+    driver: bridge
+services:
+  api:
+    image: ${NODEJS_TAG}
+    expose:
+      - "5000"
+    ports:
+      - "5000:5000"
+    networks:
+    - beholderuniversitynet
+    volumes:
+    - ./:/usr/local/lib/beholder_nodejs_api
+    working_dir: /usr/local/lib/beholder_nodejs_api
+    command: /bin/sh

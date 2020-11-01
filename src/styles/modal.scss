@@ -1,0 +1,46 @@
+.modal {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    position: fixed;
+    top: 30%;
+    left: 40%;
+    border-radius: 3px;
+    background-color: rgb(202, 202, 202);
+    z-index: 2;
+    width: 25em;
+    .header{
+        height: 30px;
+        background-color: rgb(88, 121, 212);
+        .title{
+            align-content: center;
+            text-align: center;
+            margin: auto;
+        }
+    }
+    
+ 
+    @supports (offset-rotate: 0deg) {
+      offset-rotate: 0deg;
+      offset-path: path("M 250,100 S -300,500 -700,-200");
+    }
+    .form {
+      padding: 0.3rem;
+      display: flex;
+      flex-direction: column;
+    }
+    .actions {
+      padding: 0.5rem 1rem;
+      display: flex;
+      flex-direction: row;
+      justify-content: flex-end;
+      button {
+        border: 0;
+        background:  rgb(29, 80, 219);;
+        border-radius: 5px;
+        padding: 0.5rem 1rem;
+        font-size: 0.8rem;
+        line-height: 1;
+      }
+    }
+  }
