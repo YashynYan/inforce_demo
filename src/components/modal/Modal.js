@@ -1,17 +1,18 @@
 import React, { useState, useEffect } from 'react'
 import { connect } from 'react-redux'
-import { addFeedbacks } from '../../actions/feedbackActions'
+import { addFeedbacks, setSelectedFeedback } from '../../actions/feedbackActions'
 import "../../styles/modal.scss"
 import 'react-toastify/dist/ReactToastify.css'
 import {toast} from 'react-toastify'
+import perfomValidation from '../validator/perfomValidation'
 
 toast.configure()
 
 function Modal(props) {
 
-    const {showModal, setShowModal, addFeedbacks} = props
-
-    const [form, setForm] = useState({
+    const {showModal, setShowModal, addFeedbacks, setSelectedFeedback, selectedFeedback} = props
+    const defaultValue = selectedFeedback===null? {
+        id: null,
         midname: "",
         firstname: "",
         lastname: "",
@@ -19,9 +20,21 @@ function Modal(props) {
         city_id: "",
         phone: "",
         email: "",
-        comment: ""
-    })
+        comment: "",
+        formErrors: {}
+    } : {id: selectedFeedback.feedback_id,
+        midname: selectedFeedback.feedback_midname,
+        firstname: selectedFeedback.feedback_firstname,
+        lastname: selectedFeedback.feedback_lastname,
+        region_id: selectedFeedback.region_id,
+        city_id: selectedFeedback.city_id,
+        phone: selectedFeedback.feedback_phone,
+        email: selectedFeedback.feedback_email,
+        comment: selectedFeedback.feedback_comment,
+        formErrors: {}
+    }
 
+    const [form, setForm] = useState(defaultValue)
     const [options, setOptions] = useState({region_id:[], city_id:[]})
 
     useEffect(() => {
@@ -63,9 +76,23 @@ function Modal(props) {
     }, [form.region_id])
 
     const postFeedback = () =>{
-        fetch("http://localhost:8000/api/v1/feedback/", {
-            method: 'POST',
-            body: JSON.stringify(form),
+
+        const url = "http://localhost:8000/api/v1/feedback/" + (form.feedback_id===null?"":form.id);
+        const method = form.feedback_id===null?'POST': 'PUT';
+        const bodyData = form.feedback_id===null?form:
+        {   id: selectedFeedback.feedback_id,
+            midname: selectedFeedback.feedback_midname,
+            firstname: selectedFeedback.feedback_firstname,
+            lastname: selectedFeedback.feedback_lastname,
+            city_id: selectedFeedback.city_id,
+            phone: selectedFeedback.feedback_phone,
+            email: selectedFeedback.feedback_email,
+            comment: selectedFeedback.feedback_comment
+        }
+
+        fetch(url, {
+            method: method,
+            body: JSON.stringify(bodyData),
             headers: { 
                 "Content-type": "application/json; charset=UTF-8"
             } 
@@ -76,6 +103,7 @@ function Modal(props) {
                 toast.error("Форма с ошибками", {position: toast.POSITION.TOP_RIGHT})
             } else {
             toast.success("Комментарий успешно создан!", {position: toast.POSITION.TOP_RIGHT})
+            if(method==='POST'){
             const newFeedback = {
                 feedback_id: res.id,
                 city_name: options.city_id.find(obj => obj.id.toString() === res.data.city_id).name,
@@ -91,6 +119,7 @@ function Modal(props) {
             };
             console.log(newFeedback)
             addFeedbacks(newFeedback)
+            }
             setShowModal(prevState=>{
                 return !prevState
             })
@@ -103,13 +132,40 @@ function Modal(props) {
         setForm (prevState => {
             return {
                 ...prevState,
-                [name]: value
+                [name]: value,
+                // formErrors: {}
             }
         })
     }
 
+    const formValidation = () => {
+        let validationObj= {}
+        fieldsConfig.forEach(item => {
+            const validationItem = perfomValidation(item, form[item.fieldName])
+            console.log(validationItem)
+            if(!validationItem.valid){
+                validationObj = {
+                    ...validationObj,
+                    [item.fieldName]: validationItem
+                }   
+            }
+        })
+        if(Object.keys(validationObj).length!==0){
+            console.log(validationObj)
+            setForm(prevState => {
+                return {
+                    ...prevState,
+                    formErrors: validationObj
+                }
+            })
+        } else {
+            postFeedback()
+        }
+    }
+
     const renderForm = (fieldConfig) => {
-        
+        const error = false
+        // !(form.formErrors[fieldConfig.fieldName]===undefined)
         const input = fieldConfig.fieldType === "textarea" ?
         <textarea name={fieldConfig.fieldName} value={form[fieldConfig.fieldName]} onChange={e=>{onFormChange(e.target.name, e.target.value)}}></textarea>:
         fieldConfig.fieldType==="dropdown" ?
@@ -125,9 +181,10 @@ function Modal(props) {
 
 
         return(
-            <div className="form">
+            <div className={"form" + (error?" error":"")}>
                 <label>{fieldConfig.fieldLabel}</label>
                 {input}
+                {error? <span className="error_tag">{form.formErrors[fieldConfig.fieldName].message}</span>: null}
             </div>
         )
     }
@@ -137,7 +194,6 @@ function Modal(props) {
         <div className="modal" id="modal">
             <div className="header">
                 <div className="title">Новый отзыв</div>
-                
             </div>
             <div className="form">
                 {fieldsConfig.map(item => {
@@ -147,7 +203,8 @@ function Modal(props) {
                 })}
             </div> 
             <div className="actions">
-              <button className="toggle-button" onClick={postFeedback}>OK</button>
+              <button className="toggle-button" onClick={formValidation}>OK</button>
+              <button className="toggle-button cancel" onClick={() => {setShowModal(prevState=>{return !prevState})}}>Отмена</button>
             </div>
         </div> 
         )
@@ -157,57 +214,70 @@ function Modal(props) {
 }
 
 const fieldsConfig = [{
-    value: "",
     fieldLabel: "Фамилия",
     fieldType: "text",
-    fieldName: "midname"
+    fieldName: "midname",
+    type: "text",
+    required: true
 },
 {
-    value: "",
     fieldLabel: "Имя",
     fieldType: "text",
-    fieldName: "firstname"
+    fieldName: "firstname",
+    type: "text",
+    required: true
 },
 {
-    value: "",
     fieldLabel: "Отчество",
     fieldType: "text",
-    fieldName: "lastname"
+    fieldName: "lastname",
+    type: "text",
+    required: true
 },
 {
-    value: "",
     fieldLabel: "Регион",
     fieldType: "dropdown",
-    fieldName: "region_id"
+    fieldName: "region_id",
+    type: "text",
+    required: true
 },
 {
-    value: "",
     fieldLabel: "Город",
     fieldType: "dropdown",
-    fieldName: "city_id"
+    fieldName: "city_id",
+    type: "text",
+    required: true
 },
 {
-    value: "",
     fieldLabel: "Контактный телефон",
     fieldType: "text",
-    fieldName: "phone"
+    fieldName: "phone",
+    type: "phone",
+    required: true
 },
 {
-    value: "",
     fieldLabel: "Email",
     fieldType: "text",
-    fieldName: "email"
+    fieldName: "email",
+    type: "email",
+    required: true
 },
 {
-    value: "",
     fieldLabel: "Комментарий",
     fieldType: "textarea",
-    fieldName: "comment"
+    fieldName: "comment",
+    type: "text",
+    required: false
 }
 ]
 
 const mapDispatchToProps = {
-    addFeedbacks
+    addFeedbacks,
+    setSelectedFeedback
 }
 
-export default connect(null, mapDispatchToProps)(Modal)
+const mapStateToProps = state => (
+    { selectedFeedback: state.selectedFeedback }
+    )
+
+export default connect(mapStateToProps, mapDispatchToProps)(Modal)

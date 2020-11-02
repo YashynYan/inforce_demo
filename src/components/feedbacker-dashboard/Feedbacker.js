@@ -15,7 +15,7 @@ function Feedbacker() {
             <Navbar/>
             <MainContent setShowModal={setShowModal}/> 
         </div>
-        <Modal showModal={showModal} setShowModal={setShowModal} />
+        {showModal?<Modal showModal={showModal} setShowModal={setShowModal} />: null}
         </div>
     )
 }

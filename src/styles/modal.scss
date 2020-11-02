@@ -28,19 +28,42 @@
       padding: 0.3rem;
       display: flex;
       flex-direction: column;
+
+      &.error {
+        
+        label{
+          color: red
+        }
+
+        input{
+          border-color: red;
+          border-style: solid;
+        }
+
+        .error_tag{
+          color: red;
+          font-size: 0.8em;
+
+        }
+      }
     }
     .actions {
       padding: 0.5rem 1rem;
       display: flex;
       flex-direction: row;
       justify-content: flex-end;
-      button {
+      &.toggle-button {
         border: 0;
-        background:  rgb(29, 80, 219);;
+        background:  rgb(29, 80, 219);
         border-radius: 5px;
         padding: 0.5rem 1rem;
         font-size: 0.8rem;
         line-height: 1;
+
+        &.cancel{
+          background:  rgb(54, 54, 54);
+        }
       }
+
     }
   }

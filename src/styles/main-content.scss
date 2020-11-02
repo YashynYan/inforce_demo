@@ -1,5 +1,6 @@
 $primary: rgb(29, 80, 219);
 $danger: rgb(255, 55, 55);
+$secondary: rgb(196, 196, 55);
 
 .main_content{
     width: 100%;
@@ -29,6 +30,9 @@ $danger: rgb(255, 55, 55);
 
     &.danger{
         background-color: $danger;
+    }
+    &.secondary{
+        background-color: $secondary;
     }
 }
 

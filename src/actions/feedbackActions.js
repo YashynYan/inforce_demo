@@ -13,3 +13,10 @@ export function addFeedbacks (feedback){
         payload: feedback
     })
 }
+
+export function setSelectedFeedback (id){
+    return({
+        type: "SET_SELECTED_FEEDBACK",
+        payload: id
+    })
+}
