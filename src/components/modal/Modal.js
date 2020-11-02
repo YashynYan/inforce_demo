@@ -182,7 +182,7 @@ function Modal(props) {
 
         return(
             <div className={"form" + (error?" error":"")}>
-                <label>{fieldConfig.fieldLabel}</label>
+                <label>{fieldConfig.fieldLabel}{fieldConfig.required?<span className="required_tag">*</span>:null}</label>
                 {input}
                 {error? <span className="error_tag">{form.formErrors[fieldConfig.fieldName].message}</span>: null}
             </div>

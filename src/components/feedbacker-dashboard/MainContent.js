@@ -38,8 +38,10 @@ function MainContent(props) {
             setShowModal(prevState => {
                 return true
             })
+            break;
             case "remove":
                 onRemove()
+                break;
             case "change":
                 if(selectedId===null){
                     toast.warn("Выберете комментарий", {position: toast.POSITION.TOP_RIGHT})
@@ -49,6 +51,7 @@ function MainContent(props) {
                         return true
                     })
                 }
+                break;
         }
     }
 

@@ -29,6 +29,10 @@
       display: flex;
       flex-direction: column;
 
+      .required_tag{
+        color: red
+      }
+
       &.error {
         
         label{
