@@ -1,0 +1,27 @@
+.form {
+    padding: 0.3rem;
+    display: flex;
+    flex-direction: column;
+
+    .required_tag{
+      color: red
+    }
+
+    &.error {
+      
+      label{
+        color: red
+      }
+
+      input{
+        border-color: red;
+        border-style: solid;
+      }
+
+      .error_tag{
+        color: red;
+        font-size: 0.8em;
+
+      }
+    }
+  }

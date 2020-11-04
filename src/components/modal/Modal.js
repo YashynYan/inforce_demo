@@ -1,18 +1,22 @@
 import React, { useState, useEffect } from 'react'
 import { connect } from 'react-redux'
-import { addFeedbacks, setSelectedFeedback } from '../../actions/feedbackActions'
+import { postFeedback, fetchFeedbacks, putFeedback } from '../../actions/feedbackActions'
 import "../../styles/modal.scss"
 import 'react-toastify/dist/ReactToastify.css'
 import {toast} from 'react-toastify'
 import perfomValidation from '../validator/perfomValidation'
+import Form from '../form/Form'
+import ModalWindow from '../modal-window/ModalWindow'
+import {useDispatch} from 'react-redux'
+import { fetchRegions, fetchCities } from '../../actions/formActions'
 
 toast.configure()
 
 function Modal(props) {
-
-    const {showModal, setShowModal, addFeedbacks, setSelectedFeedback, selectedFeedback} = props
+    const dispatch = useDispatch()
+    const {showModal, setShowModal, selectedFeedback, error, regions, cities} = props
     const defaultValue = selectedFeedback===null? {
-        id: null,
+        feedback_id: null,
         midname: "",
         firstname: "",
         lastname: "",
@@ -22,7 +26,7 @@ function Modal(props) {
         email: "",
         comment: "",
         formErrors: {}
-    } : {id: selectedFeedback.feedback_id,
+    } : {feedback_id: selectedFeedback.feedback_id,
         midname: selectedFeedback.feedback_midname,
         firstname: selectedFeedback.feedback_firstname,
         lastname: selectedFeedback.feedback_lastname,
@@ -33,38 +37,17 @@ function Modal(props) {
         comment: selectedFeedback.feedback_comment,
         formErrors: {}
     }
-
     const [form, setForm] = useState(defaultValue)
-    const [options, setOptions] = useState({region_id:[], city_id:[]})
+    const [options, setOptions] = useState({region_id: [], city_id:[]})
 
     useEffect(() => {
-        fetch("http://localhost:8000/api/v1/region/")
-        .then(res=> res.json())
-        .then(res=>{
-            setOptions(prevState =>{
-                return{
-                ...prevState,
-                region_id: res.data
-            }
-            })
-        }
-        )
+        dispatch(fetchRegions())      
     }, [])
 
     useEffect(() => {
         if(form.region_id!==""){
-        fetch(`http://localhost:8000/api/v1/city/region/${form.region_id}`)
-            .then(res=> res.json())
-            .then(res=>{
-                setOptions(prevState =>{
-                    return{
-                    ...prevState,
-                    city_id: res.data
-                }
-                })
-            }
-            )
-        
+            dispatch(fetchCities(form.region_id)) 
+            
         } else {
             setForm( prevState =>{
                 return{
@@ -75,12 +58,31 @@ function Modal(props) {
         }
     }, [form.region_id])
 
-    const postFeedback = () =>{
+    useEffect(() => {
+        setOptions(state => {
+            return{
+                ...state,
+                region_id: regions
+            }
+        }) 
+        
+    }, [regions])
 
-        const url = "http://localhost:8000/api/v1/feedback/" + (form.feedback_id===null?"":form.id);
+    useEffect(() => {
+        setOptions(state => {
+            return{
+                ...state,
+                city_id: cities
+            }
+        }) 
+        
+    }, [cities])
+    
+    const  sendFeedback = async () =>{
+        console.log(form)
         const method = form.feedback_id===null?'POST': 'PUT';
-        const bodyData = form.feedback_id===null?form:
-        {   id: selectedFeedback.feedback_id,
+        const bodyData = form.feedback_id===null?form:{   
+            id: selectedFeedback.feedback_id,
             midname: selectedFeedback.feedback_midname,
             firstname: selectedFeedback.feedback_firstname,
             lastname: selectedFeedback.feedback_lastname,
@@ -89,43 +91,19 @@ function Modal(props) {
             email: selectedFeedback.feedback_email,
             comment: selectedFeedback.feedback_comment
         }
-
-        fetch(url, {
-            method: method,
-            body: JSON.stringify(bodyData),
-            headers: { 
-                "Content-type": "application/json; charset=UTF-8"
-            } 
-        })
-        .then(res=> res.json())
-        .then(res=>{
-            if(res.error){
-                toast.error("Форма с ошибками", {position: toast.POSITION.TOP_RIGHT})
-            } else {
-            toast.success("Комментарий успешно создан!", {position: toast.POSITION.TOP_RIGHT})
-            if(method==='POST'){
-            const newFeedback = {
-                feedback_id: res.id,
-                city_name: options.city_id.find(obj => obj.id.toString() === res.data.city_id).name,
-                city_id: res.data.city_id,
-                feedback_comment: res.data.comment,
-                feedback_email: res.data.email,
-                feedback_firstname: res.data.firstname,
-                feedback_lastname: res.data.lastname,
-                feedback_midname: res.data.midname,
-                feedback_phone: res.data.phone,
-                region_id: res.data.region_id,
-                region_name: options.region_id.find(obj => obj.id.toString() === form.region_id).name,
-            };
-            console.log(newFeedback)
-            addFeedbacks(newFeedback)
-            }
+        if (method==='POST') {
+            await dispatch(postFeedback(bodyData)) 
+            dispatch (fetchFeedbacks())
             setShowModal(prevState=>{
                 return !prevState
             })
+        } else {
+            await dispatch(putFeedback(form.feedback_id, bodyData)) 
+            dispatch (fetchFeedbacks())
+            setShowModal(prevState=>{
+                return !prevState
+            }) 
         }
-        }
-        )
     }
 
     const onFormChange = (name, value) => {
@@ -133,7 +111,7 @@ function Modal(props) {
             return {
                 ...prevState,
                 [name]: value,
-                // formErrors: {}
+                formErrors: {}
             }
         })
     }
@@ -142,7 +120,6 @@ function Modal(props) {
         let validationObj= {}
         fieldsConfig.forEach(item => {
             const validationItem = perfomValidation(item, form[item.fieldName])
-            console.log(validationItem)
             if(!validationItem.valid){
                 validationObj = {
                     ...validationObj,
@@ -152,6 +129,7 @@ function Modal(props) {
         })
         if(Object.keys(validationObj).length!==0){
             console.log(validationObj)
+            toast.error("Форма с ошибками")
             setForm(prevState => {
                 return {
                     ...prevState,
@@ -159,53 +137,26 @@ function Modal(props) {
                 }
             })
         } else {
-            postFeedback()
+            sendFeedback()
         }
     }
-
-    const renderForm = (fieldConfig) => {
-        const error = false
-        // !(form.formErrors[fieldConfig.fieldName]===undefined)
-        const input = fieldConfig.fieldType === "textarea" ?
-        <textarea name={fieldConfig.fieldName} value={form[fieldConfig.fieldName]} onChange={e=>{onFormChange(e.target.name, e.target.value)}}></textarea>:
-        fieldConfig.fieldType==="dropdown" ?
-        <select name={fieldConfig.fieldName} value={form[fieldConfig.fieldName]} onChange={e=>{onFormChange(e.target.name, e.target.value)}}>
-            <option value="" disabled selected>Select your option</option>
-            {options[fieldConfig.fieldName].map(item => {
-                return(
-                    <option value={item.id}>{item.name}</option>
-                )
-            })}
-        </select>:
-        <input type={fieldConfig.fieldType} name={fieldConfig.fieldName} value={form[fieldConfig.fieldName]} onChange={e=>{onFormChange(e.target.name, e.target.value)}}></input>
-
-
-        return(
-            <div className={"form" + (error?" error":"")}>
-                <label>{fieldConfig.fieldLabel}{fieldConfig.required?<span className="required_tag">*</span>:null}</label>
-                {input}
-                {error? <span className="error_tag">{form.formErrors[fieldConfig.fieldName].message}</span>: null}
-            </div>
-        )
-    }
-
+    console.log(options)
     if(showModal){
         return (
-        <div className="modal" id="modal">
-            <div className="header">
-                <div className="title">Новый отзыв</div>
-            </div>
-            <div className="form">
-                {fieldsConfig.map(item => {
-                    return (
-                        renderForm(item)
-                    )
-                })}
-            </div> 
-            <div className="actions">
-              <button className="toggle-button" onClick={formValidation}>OK</button>
-              <button className="toggle-button cancel" onClick={() => {setShowModal(prevState=>{return !prevState})}}>Отмена</button>
-            </div>
+        <div>
+            <ModalWindow title = {form.feedback_id===null?"Новый отзыв": "Изменить отзыв"}>
+                <Form 
+                    data = {form}
+                    fieldsConfig = {fieldsConfig}
+                    onFormChange = {onFormChange}
+                    options = {options}
+                />
+                <div className="actions">
+                    <button className="toggle-button" onClick={formValidation}>OK</button>
+                    <button className="toggle-button cancel" onClick={() => {setShowModal(prevState=>{return !prevState})}}>Отмена</button>
+                </div>
+            </ModalWindow>
+            
         </div> 
         )
     } else {
@@ -266,18 +217,22 @@ const fieldsConfig = [{
     fieldLabel: "Комментарий",
     fieldType: "textarea",
     fieldName: "comment",
-    type: "text",
-    required: false
+    type: "text", 
+    required: true
 }
 ]
 
 const mapDispatchToProps = {
-    addFeedbacks,
-    setSelectedFeedback
+    
 }
 
 const mapStateToProps = state => (
-    { selectedFeedback: state.selectedFeedback }
+    { 
+        selectedFeedback: state.feedbackReducer.selectedFeedback,
+        error: state.feedbackReducer.error,
+        regions: state.formReducer.regions,
+        cities: state.formReducer.cities,
+    }
     )
 
 export default connect(mapStateToProps, mapDispatchToProps)(Modal)

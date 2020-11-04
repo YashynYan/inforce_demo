@@ -9,6 +9,7 @@ import StatsTablesRouter from './stats-tables-router/';
 function App() {
     return (
         <Switch>
+            
             <Route path="/stat">
                 <StatsTablesRouter /> 
             </Route>

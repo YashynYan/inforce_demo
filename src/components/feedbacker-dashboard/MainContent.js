@@ -1,34 +1,21 @@
 import React, {useEffect, useState} from 'react'
 import { connect } from 'react-redux'
 import "../../styles/main-content.scss"
-import { setFeedbacks, setSelectedFeedback } from '../../actions/feedbackActions'
+import { deleteFeedback, fetchFeedbacks, setFeedbacks, setSelectedFeedback } from '../../actions/feedbackActions'
 import 'react-toastify/dist/ReactToastify.css'
 import {toast} from 'react-toastify'
-import feedbackReducer from '../../reducers/FeedbackReducer'
+import {useDispatch} from 'react-redux'
  
 toast.configure()
 
 function MainContent(props) {
-    const { setShowModal, setFeedbacks, feedbacks, setSelectedFeedback } = props
-
+    const { setShowModal, feedbacks, setSelectedFeedback } = props
+    const dispatch = useDispatch()
     const [ isLoading, setIsLoading ] = useState(true)
     const [ selectedId, setSelectedId ] = useState(null)
 
-    console.log(selectedId)
-
     useEffect(() => {
-        fetch("http://localhost:8000/api/v1/feedback/", {
-            method: 'GET'
-        })
-        .then(res=> res.json())
-        .then(res=>{
-            setFeedbacks(res.data)
-        }
-        ).then(
-            setIsLoading(()=>{
-                return false
-            })
-        )
+        dispatch(fetchFeedbacks())
     }, [])
 
     const onClickHandler = (action) => {
@@ -56,25 +43,9 @@ function MainContent(props) {
     }
 
     const onRemove = () => {
-        fetch("http://localhost:8000/api/v1/feedback/" + selectedId, {
-            method: 'DELETE'
-        })
-        .then(res=> res.json())
-        .then(res=>{
-            console.log(res)
-            toast.success("Комментарий успешно удален!", {position: toast.POSITION.TOP_RIGHT})
-            fetch("http://localhost:8000/api/v1/feedback/", {
-            method: 'GET'
-        })
-        .then(res=> res.json())
-        .then(res=>{
-            setFeedbacks(res.data)
-        }
-        )
-        }
-        )
+        dispatch(deleteFeedback(selectedId))
     }
-
+    
     return (
         <div className="main_content">
             <div className="content_header">
@@ -136,7 +107,7 @@ const mapDispatchToProps = {
 const mapStateToProps =(store)=>{
     console.log(store)
     return {
-        feedbacks: store.feedbacks
+        feedbacks: store.feedbackReducer.feedbacks
     }
   }
 
