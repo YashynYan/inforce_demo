@@ -28,6 +28,7 @@ function MainContent(props) {
             break;
             case "remove":
                 onRemove()
+                setSelectedId(null)
                 break;
             case "change":
                 if(selectedId===null){
