@@ -10,17 +10,16 @@ export function* sagaWatcher() {
     yield takeEvery("FEEDBACKS_BY_REGION_ID", sagaFeedbacksByRegionId)
     yield takeEvery("FETCH_REGIONS", sagaFetchAllRegions)
     yield takeEvery("FETCH_CITIES_BY_REGION_ID", sagaFetchAllCitiesByRegionsId)
+    yield takeEvery("POST_FEEDBACK", sagaPostFeedback)
 }
 
 function* sagaFetchAllFeedbacks() {
     const payload = yield call(fetchAllFeedbacks)
-    console.log(payload)
     yield put ({type: "FETCH_FEEDBACKS_REQUEST", payload: payload.data})
 }
 
 function* sagaFetchAllRegions() {
     const payload = yield call(fetchAllRegions)
-    console.log(payload)
     yield put ({type: "FETCH_REGIONS_REQUEST", payload: payload.data})
 }
 
@@ -32,21 +31,32 @@ function* sagaFetchAllCitiesByRegionsId(object) {
 
 function* sagaFeedbacksByRegions() {
     const regionsPayload = yield call(fetchAllRegions)
-    console.log(regionsPayload)
     const feedbacksPayload = yield call(fetchAllFeedbacks)
     const tableArray = createTableArray(regionsPayload.data, feedbacksPayload.data)
-    console.log(tableArray)
     yield put ({type: "FEEDBACKS_BY_REGIONS_REQUEST", payload: tableArray})
 }
 
 function* sagaFeedbacksByRegionId(object) {
-    console.log(object.id)
     const citiesPayload = yield call(fetchAllCitiesByRegionId, object.id)
     const feedbacksPayload = yield call(fetchAllFeedbacks)
-    console.log(feedbacksPayload)
     const tableArray = createCityTableArray(citiesPayload.data, feedbacksPayload.data)
-    console.log(tableArray)
     yield put ({type: "FEEDBACKS_BY_REGION_ID_REQUEST", payload: tableArray})
+}
+
+function* sagaPostFeedback(object) {
+    const response = yield call(postFeedback, object.payload)
+    return response
+}
+
+async function postFeedback(feedback) {
+    const response = await fetch(feedbackUrl, {
+        body: JSON.stringify(feedback),
+        method: 'POST',
+        headers: { 
+            "Content-type": "application/json; charset=UTF-8"
+        } 
+    })
+    return await response.json()
 }
 
 async function fetchAllFeedbacks() {

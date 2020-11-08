@@ -15,22 +15,7 @@ export function deleteFeedback (id) {
 }
 
 export function postFeedback (feedback) {
-     return async dispatch => {
-        const response = await fetch(url, {
-            body: JSON.stringify(feedback),
-            method: 'POST',
-            headers: { 
-                "Content-type": "application/json; charset=UTF-8"
-            } 
-        })
-        const json = await response.json()
-        if (json.message!==undefined){
-            dispatch ({type: "POST_FEEDBACK", payload: json.id})
-        } else {
-            dispatch ({type: "SET_ERROR", payload: json.error})
-        }
-        
-    }   
+    return {type: "POST_FEEDBACK", payload: feedback}
 } 
 
 export function putFeedback (id, feedback) {
@@ -39,7 +24,8 @@ export function putFeedback (id, feedback) {
            body: JSON.stringify(feedback),
            method: 'PUT',
            headers: { 
-               "Content-type": "application/json; charset=UTF-8"
+               "Content-type": "application/json; charset=UTF-8",
+               "Accept": "application/json"
            } 
        })
        const json = await response.json()

@@ -91,13 +91,15 @@ function Modal(props) {
             comment: selectedFeedback.feedback_comment
         }
         if (method==='POST') {
-            await dispatch(postFeedback(bodyData)) 
+            await dispatch(postFeedback(bodyData))
+            toast.success("Комментарий успешно добавлен")
             dispatch (fetchFeedbacks())
             setShowModal(prevState=>{
                 return !prevState
             })
         } else {
-            await dispatch(putFeedback(form.feedback_id, bodyData)) 
+            await dispatch(putFeedback(form.feedback_id, bodyData))
+            toast.success("Комментарий успешно изменён") 
             dispatch (fetchFeedbacks())
             setShowModal(prevState=>{
                 return !prevState
