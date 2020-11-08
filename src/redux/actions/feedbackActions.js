@@ -5,14 +5,8 @@ export function fetchFeedbacks () {
     }   
 
 export function deleteFeedback (id) {
-    return async dispatch => {
-        const response = await fetch(url + id, {
-            method: 'DELETE'
-        })
-        const json = await response.json()
-        dispatch ({type: "DELETE_FEEDBACK", payload: id})
+    return {type: "DELETE_FEEDBACK", id: id}
     }   
-}
 
 export function postFeedback (feedback) {
     return {type: "POST_FEEDBACK", payload: feedback}
@@ -37,20 +31,6 @@ export function putFeedback (id, feedback) {
        
     }   
 } 
-
-export function setFeedbacks (feedbacks){
-    return({
-        type: "SET_FEEDBACKS",
-        payload: feedbacks
-    })
-}
-
-export function addFeedbacks (feedback){
-    return({
-        type: "ADD_FEEDBACKS",
-        payload: feedback
-    })
-}
 
 export function setSelectedFeedback (id){
     return({

@@ -11,6 +11,7 @@ export function* sagaWatcher() {
     yield takeEvery("FETCH_REGIONS", sagaFetchAllRegions)
     yield takeEvery("FETCH_CITIES_BY_REGION_ID", sagaFetchAllCitiesByRegionsId)
     yield takeEvery("POST_FEEDBACK", sagaPostFeedback)
+    yield takeEvery("DELETE_FEEDBACK", sagaDeleteFeedback)
 }
 
 function* sagaFetchAllFeedbacks() {
@@ -46,6 +47,20 @@ function* sagaFeedbacksByRegionId(object) {
 function* sagaPostFeedback(object) {
     const response = yield call(postFeedback, object.payload)
     return response
+}
+
+function* sagaDeleteFeedback(object) {
+    console.log(object)
+    const response = yield call(deleteFeedback, object.id)
+    yield put({type: "DELETE_FEEDBACK_ID", payload: object.id})
+    return response
+}
+
+async function deleteFeedback(id) {
+    const response = await fetch(feedbackUrl + id, {
+        method: 'DELETE'
+    })
+    return await response.json()
 }
 
 async function postFeedback(feedback) {

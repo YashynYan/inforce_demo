@@ -1,7 +1,7 @@
 import React, {useEffect, useState} from 'react'
 import { connect } from 'react-redux'
 import "../../styles/main-content.scss"
-import { deleteFeedback, fetchFeedbacks, setFeedbacks, setSelectedFeedback } from '../../redux/actions/feedbackActions'
+import { deleteFeedback, fetchFeedbacks, setSelectedFeedback } from '../../redux/actions/feedbackActions'
 import 'react-toastify/dist/ReactToastify.css'
 import {toast} from 'react-toastify'
 import {useDispatch} from 'react-redux'
@@ -96,7 +96,6 @@ function MainContent(props) {
 }
 
 const mapDispatchToProps = {
-    setFeedbacks,
     setSelectedFeedback
 }
 
