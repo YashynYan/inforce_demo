@@ -1,12 +1,8 @@
 const url = "http://localhost:8000/api/v1/feedback/"
 
 export function fetchFeedbacks () {
-    return async dispatch => {
-        const response = await fetch(url)
-        const json = await response.json()
-        dispatch ({type: "FETCH_FEEDBACKS", payload: json.data})
+        return {type: "FETCH_FEEDBACKS"}
     }   
-}
 
 export function deleteFeedback (id) {
     return async dispatch => {
@@ -47,14 +43,13 @@ export function putFeedback (id, feedback) {
            } 
        })
        const json = await response.json()
-       console.log(json)
        if (json.message!==undefined){
            dispatch ({type: "PUT_FEEDBACK", payload: json})
        } else {
            dispatch ({type: "SET_ERROR", payload: json.error})
        }
        
-   }   
+    }   
 } 
 
 export function setFeedbacks (feedbacks){

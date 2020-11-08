@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react'
 import { connect } from 'react-redux'
-import { postFeedback, fetchFeedbacks, putFeedback } from '../../actions/feedbackActions'
+import { postFeedback, fetchFeedbacks, putFeedback } from '../../redux/actions/feedbackActions'
 import "../../styles/modal.scss"
 import 'react-toastify/dist/ReactToastify.css'
 import {toast} from 'react-toastify'
@@ -8,7 +8,7 @@ import perfomValidation from '../validator/perfomValidation'
 import Form from '../form/Form'
 import ModalWindow from '../modal-window/ModalWindow'
 import {useDispatch} from 'react-redux'
-import { fetchRegions, fetchCities } from '../../actions/formActions'
+import { fetchRegions, fetchCitiesByRegionId } from '../../redux/actions/formActions'
 
 toast.configure()
 
@@ -46,7 +46,7 @@ function Modal(props) {
 
     useEffect(() => {
         if(form.region_id!==""){
-            dispatch(fetchCities(form.region_id)) 
+            dispatch(fetchCitiesByRegionId(form.region_id)) 
             
         } else {
             setForm( prevState =>{
@@ -79,7 +79,6 @@ function Modal(props) {
     }, [cities])
     
     const  sendFeedback = async () =>{
-        console.log(form)
         const method = form.feedback_id===null?'POST': 'PUT';
         const bodyData = form.feedback_id===null?form:{   
             id: selectedFeedback.feedback_id,
@@ -128,7 +127,6 @@ function Modal(props) {
             }
         })
         if(Object.keys(validationObj).length!==0){
-            console.log(validationObj)
             toast.error("Форма с ошибками")
             setForm(prevState => {
                 return {
@@ -140,7 +138,7 @@ function Modal(props) {
             sendFeedback()
         }
     }
-    console.log(options)
+    
     if(showModal){
         return (
         <div>

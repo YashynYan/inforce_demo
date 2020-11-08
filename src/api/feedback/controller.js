@@ -39,7 +39,6 @@ export default class FeedbackController {
   }
 
   static async apiPostFeedback(req, res, next) {
-    console.log(req)
     let errors=[]
     if (!req.body.firstname){
         errors.push("No firstname specified")

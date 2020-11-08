@@ -5,7 +5,6 @@ const initialState = {
 }
 
 const feedbackReducer = (state = initialState, action) => {
-    console.log(action)
     switch(action.type){
         case "SET_FEEDBACKS": 
             return state = {...state, feedbacks: action.payload}
@@ -13,7 +12,7 @@ const feedbackReducer = (state = initialState, action) => {
             return state = {...state, feedbacks: state.feedbacks.concat(action.payload)}
         case "SET_SELECTED_FEEDBACK": 
             return state = {...state, selectedFeedback: state.feedbacks.find(item => item.feedback_id === action.payload)}
-        case "FETCH_FEEDBACKS":
+        case "FETCH_FEEDBACKS_REQUEST":
             return state = {...state, feedbacks: action.payload}
         case "DELETE_FEEDBACK":
             return state = {...state, feedbacks: state.feedbacks.filter( item => item.feedback_id !== action.payload)}

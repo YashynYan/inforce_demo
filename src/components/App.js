@@ -5,17 +5,13 @@ import {
     Route
   } from "react-router-dom";
 import StatsTablesRouter from './stats-tables-router/';
+import RegionStatTable from './feedbacker-region-stat';
 
 function App() {
     return (
         <Switch>
-            
-            <Route path="/stat">
-                <StatsTablesRouter /> 
-            </Route>
-            <Route path="/">
-                <Feedbacker />
-            </Route>
+            <Route path="/stat" component={StatsTablesRouter} />
+            <Route path="/" component={Feedbacker} />
         </Switch>
     )
 }

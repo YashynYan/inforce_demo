@@ -1,8 +1,7 @@
-import React, { useState, useEffect } from 'react'
+import React, { useEffect } from 'react'
 import { Link, useLocation } from 'react-router-dom'
 import {connect, useDispatch} from 'react-redux'
-import {  fetchFeedbacks } from '../../actions/feedbackActions'
-import { fetchRegions } from '../../actions/formActions'
+import {feedbacksByRegions} from '../../redux/actions/StateTablesActions'
 
 function StatTable(props) {
 
@@ -10,27 +9,15 @@ function StatTable(props) {
     const dispatch = useDispatch()
 
     useEffect(() => {
-        dispatch(fetchFeedbacks())
-        dispatch(fetchRegions())
+        dispatch(feedbacksByRegions())
     }, [])
 
     
-    const {regions, feedbacks} = props
-
-    const createTableArray = () => {
-        const tableArray = regions.reduce( (acc, regionItem) => { 
-            console.log(acc)
-            const feedbacksCount = feedbacks.filter(item => item.region_id===regionItem.id).length
-            if(feedbacksCount!==0){
-                return acc.concat({region_id: regionItem.id, region_name: regionItem.name, feedbacks_count: feedbacksCount})
-            } else { return acc }
-        }, [])
-
-        return tableArray
-    }
+    const {regionsTableArray} = props
 
     return (
         <div>
+            <h2>Распределение по регионам</h2>
             <table>
                 <thead>
                     <tr>
@@ -40,12 +27,12 @@ function StatTable(props) {
                     </tr>
                 </thead>
                 <tbody>
-            {createTableArray().map(item => {
+            {regionsTableArray.map(item => {
                 return (
                     <tr>
                         <td>{item.region_id}</td>
                         <td>
-                            <Link to={currentLocation + "/region/"+item.region_id} target="_blank">{item.region_name}</Link>
+                            <Link to={currentLocation + '/region/' +item.region_id} target="_blank">{item.region_name}</Link>
                         </td>
                         <td>{item.feedbacks_count}</td>
                     </tr>
@@ -57,11 +44,11 @@ function StatTable(props) {
     )
 }
 
-const mapStateToProps = state => (
-    { 
-        regions: state.formReducer.regions,
-        feedbacks: state.feedbackReducer.feedbacks
+const mapStateToProps = state => {
+    console.log(state)
+    return { 
+        regionsTableArray: state.tableReducer.tableOfRegions
     }
-    )
+    }
 
 export default connect(mapStateToProps)(StatTable)

@@ -1,7 +1,7 @@
 import React, {useEffect, useState} from 'react'
 import { connect } from 'react-redux'
 import "../../styles/main-content.scss"
-import { deleteFeedback, fetchFeedbacks, setFeedbacks, setSelectedFeedback } from '../../actions/feedbackActions'
+import { deleteFeedback, fetchFeedbacks, setFeedbacks, setSelectedFeedback } from '../../redux/actions/feedbackActions'
 import 'react-toastify/dist/ReactToastify.css'
 import {toast} from 'react-toastify'
 import {useDispatch} from 'react-redux'
@@ -15,11 +15,10 @@ function MainContent(props) {
     const [ selectedId, setSelectedId ] = useState(null)
 
     useEffect(() => {
-        dispatch(fetchFeedbacks())
+        dispatch(fetchFeedbacks()) 
     }, [])
 
     const onClickHandler = (action) => {
-        console.log(action)
         switch(action){
             case "add": 
             setShowModal(prevState => {
@@ -67,7 +66,7 @@ function MainContent(props) {
                     </tr>
                 </thead>
                 <tbody>
-            {feedbacks.map(item => {
+            {feedbacks!==undefined?feedbacks.map(item => {
                 return (
                     <tr className={selectedId===item.feedback_id?"selected":null} onClick={()=>{selectedId===item.feedback_id? setSelectedId(null): setSelectedId(item.feedback_id)}}>
                         <td>{item.feedback_id}</td>
@@ -89,13 +88,9 @@ function MainContent(props) {
                         <td>{item.feedback_comment}</td>
                     </tr>
                 )
-            })}
+            }): null}
             </tbody>
             </table>
-            {feedbacks.length===0 && !isLoading?
-                <p>Записей нет</p>:
-                null
-            }
         </div>
     )
 }
@@ -106,7 +101,6 @@ const mapDispatchToProps = {
 }
 
 const mapStateToProps =(store)=>{
-    console.log(store)
     return {
         feedbacks: store.feedbackReducer.feedbacks
     }

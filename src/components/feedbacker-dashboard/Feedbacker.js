@@ -7,7 +7,6 @@ import Modal from '../modal/Modal'
 function Feedbacker() {
 
     const [showModal, setShowModal] = useState (false)
-    console.log(showModal)
 
     return (
         <div>

@@ -4,14 +4,16 @@ import App from './components/App'
 import {BrowserRouter as Router} from 'react-router-dom'
 import { Provider } from 'react-redux'
 import { createStore, applyMiddleware } from 'redux'
-import rootReducer from './reducers'
+import rootReducer from './redux/reducers'
 import thunk from 'redux-thunk'
+import createSagaMiddleware from 'redux-saga' 
+import { sagaWatcher } from './redux/sagas'
 
+const saga = createSagaMiddleware()
 
+const store = createStore(rootReducer, applyMiddleware(thunk, saga))
 
-const store = createStore(rootReducer, applyMiddleware(thunk))
-
-console.log(store)
+saga.run(sagaWatcher)
 
 const Index = () => {
     return(
